@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - Berserk Armor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <span class="logo-icon">⚔️</span>
+        <div>
+          <h1><a href="index.html">Berserk Armor</a></h1>
+          <p class="tagline">Cupcakes Artesanais</p>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="produtos.html">Produtos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-box">
+      <h2>Cadastro</h2>
+      
+      <form id="formCadastro" class="auth-form">
+        <div class="form-group">
+          <label for="nome">Nome Completo</label>
+          <input 
+            type="text" 
+            id="nome" 
+            name="nome" 
+            placeholder="Seu nome completo" 
+            required
+            minlength="3"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="seu@email.com" 
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="telefone">Telefone</label>
+          <input 
+            type="tel" 
+            id="telefone" 
+            name="telefone" 
+            placeholder="(11) 99999-9999"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input 
+            type="password" 
+            id="senha" 
+            name="senha" 
+            placeholder="Mínimo 6 caracteres" 
+            required
+            minlength="6"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmarSenha">Confirmar Senha</label>
+          <input 
+            type="password" 
+            id="confirmarSenha" 
+            name="confirmarSenha" 
+            placeholder="Digite a senha novamente" 
+            required
+            minlength="6"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="endereco">Endereço</label>
+          <textarea 
+            id="endereco" 
+            name="endereco" 
+            placeholder="Rua, número, bairro, cidade"
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <button type="submit" class="btn-submit">Cadastrar</button>
+      </form>
+      
+      <div class="auth-footer">
+        <p>Já tem conta? <a href="login.html">Fazer login</a></p>
+      </div>
+      
+      <div id="mensagem" class="mensagem"></div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const telefone = document.getElementById('telefone').value;
+      const senha = document.getElementById('senha').value;
+      const confirmarSenha = document.getElementById('confirmarSenha').value;
+      const endereco = document.getElementById('endereco').value;
+      const mensagemDiv = document.getElementById('mensagem');
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      
+      if (senha !== confirmarSenha) {
+        mensagemDiv.className = 'mensagem erro';
+        mensagemDiv.textContent = 'As senhas não coincidem';
+        return;
+      }
+      
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Cadastrando...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/cadastro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            nome, 
+            email, 
+            senha, 
+            telefone, 
+            endereco 
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          mensagemDiv.className = 'mensagem sucesso';
+          mensagemDiv.textContent = data.mensagem;
+          
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+          
+        } else {
+          mensagemDiv.className = 'mensagem erro';
+          mensagemDiv.textContent = data.erro;
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Cadastrar';
+        }
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        mensagemDiv.className = 'mensagem erro';
+        mensagemDiv.textContent = 'Erro ao conectar com o servidor';
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Cadastrar';
+      }
+    });
+  </script>
+</body>
+</html>

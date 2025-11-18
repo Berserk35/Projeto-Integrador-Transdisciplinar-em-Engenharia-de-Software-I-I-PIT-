@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho - Berserk Armor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <span class="logo-icon">⚔️</span>
+        <div>
+          <h1><a href="index.html">Berserk Armor</a></h1>
+          <p class="tagline">Cupcakes Artesanais</p>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="produtos.html">Produtos</a>
+        <a href="carrinho.html" class="active">Carrinho</a>
+        <span id="userMenu"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 40px 24px; min-height: calc(100vh - 200px);">
+    <h2 class="section-title">Meu Carrinho</h2>
+    
+    <div id="carrinhoContainer"></div>
+    
+    <div id="carrinhoVazio" style="display: none; text-align: center; padding: 80px 24px;">
+      <p style="font-size: 1.5rem; color: var(--texto-cinza); margin-bottom: 24px;">Seu carrinho está vazio</p>
+      <a href="produtos.html" class="btn-cta">Ver Produtos</a>
+    </div>
+    
+    <div id="carrinhoResumo" style="display: none; max-width: 400px; margin: 40px auto 0; background: var(--preto-card); padding: 32px; border-radius: 16px; border: 2px solid var(--azul-primario);">
+      <h3 style="margin-bottom: 24px; color: var(--azul-neon);">Resumo do Pedido</h3>
+      
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(0,102,255,0.2);">
+        <span>Subtotal:</span>
+        <span id="subtotal">R$ 0,00</span>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(0,102,255,0.2);">
+        <span>Taxa de entrega:</span>
+        <span id="taxaEntrega">R$ 5,00</span>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; padding: 12px 0; font-size: 1.5rem; font-weight: 800; margin-top: 12px;">
+        <span style="color: var(--azul-neon);">Total:</span>
+        <span id="total" style="color: var(--azul-neon);">R$ 0,00</span>
+      </div>
+      
+      <button onclick="finalizarPedido()" class="btn-submit" style="margin-top: 24px;">Finalizar Pedido</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 Berserk Armor - Desenvolvido por Sivaldo Silva</p>
+    </div>
+  </footer>
+
+  <script>
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    
+    function verificarUsuario() {
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      const userMenu = document.getElementById('userMenu');
+      
+      if (usuario) {
+        userMenu.innerHTML = `
+          <span class="user-info">Olá, ${usuario.nome.split(' ')[0]}!</span>
+          <a href="pedidos.html">Pedidos</a>
+          <a href="#" onclick="logout()">Sair</a>
+        `;
+      } else {
+        userMenu.innerHTML = `
+          <a href="login.html">Login</a>
+          <a href="cadastro.html" class="btn-nav btn-primary">Cadastrar</a>
+        `;
+      }
+    }
+    
+    function logout() {
+      localStorage.removeItem('usuario');
+      window.location.href = 'index.html';
+    }
+    
+    function exibirCarrinho() {
+      const container = document.getElementById('carrinhoContainer');
+      const vazio = document.getElementById('carrinhoVazio');
+      const resumo = document.getElementById('carrinhoResumo');
+      
+      if (carrinho.length === 0) {
+        container.style.display = 'none';
+        vazio.style.display = 'block';
+        resumo.style.display = 'none';
+        return;
+      }
+      
+      vazio.style.display = 'none';
+      container.style.display = 'block';
+      resumo.style.display = 'block';
+      
+      container.innerHTML = carrinho.map((item, index) => `
+        <div style="background: var(--preto-card); padding: 24px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(0,102,255,0.2); display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+          <img src="${item.imagem}" alt="${item.nome}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;">
+          
+          <div style="flex: 1; min-width: 200px;">
+            <h3 style="color: var(--azul-neon); margin-bottom: 8px;">${item.nome}</h3>
+            <p style="color: var(--texto-cinza);">R$ ${item.preco.toFixed(2)}</p>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 12px; background: rgba(0,102,255,0.1); padding: 8px 16px; border-radius: 12px;">
+            <button onclick="alterarQuantidade(${index}, -1)" style="width: 32px; height: 32px; background: var(--gradiente); border: none; border-radius: 8px; color: white; font-weight: 700; cursor: pointer;">-</button>
+            <span style="font-weight: 700; min-width: 30px; text-align: center;">${item.quantidade}</span>
+            <button onclick="alterarQuantidade(${index}, 1)" style="width: 32px; height: 32px; background: var(--gradiente); border: none; border-radius: 8px; color: white; font-weight: 700; cursor: pointer;">+</button>
+          </div>
+          
+          <div style="text-align: right;">
+            <p style="font-size: 1.5rem; font-weight: 800; color: var(--azul-neon); margin-bottom: 12px;">R$ ${(item.preco * item.quantidade).toFixed(2)}</p>
+            <button onclick="removerItem(${index})" style="background: #ff4444; border: none; padding: 8px 12px; border-radius: 8px; color: white; cursor: pointer;">Remover</button>
+          </div>
+        </div>
+      `).join('');
+      
+      calcularTotal();
+    }
+    
+    function alterarQuantidade(index, delta) {
+      const item = carrinho[index];
+      const novaQuantidade = item.quantidade + delta;
+      
+      if (novaQuantidade <= 0) {
+        removerItem(index);
+        return;
+      }
+      
+      if (novaQuantidade > item.estoqueDisponivel) {
+        alert(`Estoque disponível: ${item.estoqueDisponivel} unidades`);
+        return;
+      }
+      
+      carrinho[index].quantidade = novaQuantidade;
+      salvarCarrinho();
+      exibirCarrinho();
+    }
+    
+    function removerItem(index) {
+      if (confirm('Deseja remover este item do carrinho?')) {
+        carrinho.splice(index, 1);
+        salvarCarrinho();
+        exibirCarrinho();
+      }
+    }
+    
+    function calcularTotal() {
+      const subtotal = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+      const taxaEntrega = 5.00;
+      const total = subtotal + taxaEntrega;
+      
+      document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+      document.getElementById('total').textContent = `R$ ${total.toFixed(2)}`;
+    }
+    
+    function salvarCarrinho() {
+      localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    }
+    
+    async function finalizarPedido() {
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      
+      if (!usuario) {
+        alert('Você precisa estar logado para fazer um pedido!');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      if (carrinho.length === 0) {
+        alert('Seu carrinho está vazio!');
+        return;
+      }
+      
+      const subtotal = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+      const taxaEntrega = 5.00;
+      const total = subtotal + taxaEntrega;
+      
+      const itens = carrinho.map(item => ({
+        produtoId: item.produtoId,
+        quantidade: item.quantidade,
+        preco: item.preco
+      }));
+      
+      const btnFinalizar = event.target;
+      btnFinalizar.disabled = true;
+      btnFinalizar.textContent = 'Processando...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/pedidos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuarioId: usuario.id,
+            itens,
+            total
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          localStorage.removeItem('carrinho');
+          carrinho = [];
+          
+          alert('Pedido realizado com sucesso! Número do pedido: #' + data.pedido.id);
+          window.location.href = 'pedidos.html';
+        } else {
+          alert('Erro: ' + data.erro);
+          btnFinalizar.disabled = false;
+          btnFinalizar.textContent = 'Finalizar Pedido';
+        }
+        
+      } catch (error) {
+        console.error('Erro ao finalizar pedido:', error);
+        alert('Erro ao conectar com o servidor');
+        btnFinalizar.disabled = false;
+        btnFinalizar.textContent = 'Finalizar Pedido';
+      }
+    }
+    
+    verificarUsuario();
+    exibirCarrinho();
+  </script>
+</body>
+</html>

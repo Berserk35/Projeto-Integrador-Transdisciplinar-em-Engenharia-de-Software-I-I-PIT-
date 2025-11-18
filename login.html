@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Berserk Armor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <span class="logo-icon">⚔️</span>
+        <div>
+          <h1><a href="index.html">Berserk Armor</a></h1>
+          <p class="tagline">Cupcakes Artesanais</p>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="produtos.html">Produtos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-box">
+      <h2>Login</h2>
+      
+      <form id="formLogin" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="seu@email.com" 
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input 
+            type="password" 
+            id="senha" 
+            name="senha" 
+            placeholder="Sua senha" 
+            required
+            minlength="6"
+          >
+        </div>
+        
+        <button type="submit" class="btn-submit">Entrar</button>
+      </form>
+      
+      <div class="auth-footer">
+        <p>Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+      </div>
+      
+      <div id="mensagem" class="mensagem"></div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const mensagemDiv = document.getElementById('mensagem');
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Entrando...';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+          
+          mensagemDiv.className = 'mensagem sucesso';
+          mensagemDiv.textContent = data.mensagem;
+          
+          setTimeout(() => {
+            window.location.href = 'produtos.html';
+          }, 1000);
+          
+        } else {
+          mensagemDiv.className = 'mensagem erro';
+          mensagemDiv.textContent = data.erro;
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Entrar';
+        }
+        
+      } catch (error) {
+        console.error('Erro:', error);
+        mensagemDiv.className = 'mensagem erro';
+        mensagemDiv.textContent = 'Erro ao conectar com o servidor';
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

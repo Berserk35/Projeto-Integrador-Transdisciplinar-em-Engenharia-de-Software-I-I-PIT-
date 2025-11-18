@@ -1,0 +1,85 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nome": "Sivaldo j Silva",
+      "email": "Sivaldo_Silva@outlook.com",
+      "senha": "$2a$10$zIWjzJRMChpKvDFmS2o9B.xZS/z7wfV3f6BApBkza6EjT1dSz9up6",
+      "telefone": "16981158923",
+      "endereco": "",
+      "dataCadastro": "2025-11-18T00:28:34.463Z"
+    }
+  ],
+  "produtos": [
+    {
+      "id": 1,
+      "nome": "Armadura de Chocolate",
+      "preco": 12.99,
+      "descricao": "Cobertura de chocolate belga premium com recheio intenso",
+      "imagem": "https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400",
+      "estoque": 50,
+      "categoria": "chocolate"
+    },
+    {
+      "id": 2,
+      "nome": "Berserker Red Velvet",
+      "preco": 14.99,
+      "descricao": "Red velvet clássico com cream cheese e toque especial",
+      "imagem": "https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400",
+      "estoque": 40,
+      "categoria": "especial"
+    },
+    {
+      "id": 3,
+      "nome": "Baunilha do Cavaleiro",
+      "preco": 10.99,
+      "descricao": "Baunilha de Madagascar com buttercream sedoso",
+      "imagem": "https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400",
+      "estoque": 45,
+      "categoria": "classico"
+    },
+    {
+      "id": 4,
+      "nome": "Morango da Batalha",
+      "preco": 11.99,
+      "descricao": "Morangos frescos com chantilly artesanal",
+      "imagem": "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=400",
+      "estoque": 35,
+      "categoria": "frutas"
+    },
+    {
+      "id": 5,
+      "nome": "Limão Celestial",
+      "preco": 11.99,
+      "descricao": "Limão siciliano refrescante com toque cítrico",
+      "imagem": "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400",
+      "estoque": 29,
+      "categoria": "frutas"
+    },
+    {
+      "id": 6,
+      "nome": "Eclipse de Nutella",
+      "preco": 15.99,
+      "descricao": "Nutella premium com avelãs caramelizadas",
+      "imagem": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+      "estoque": 25,
+      "categoria": "especial"
+    }
+  ],
+  "pedidos": [
+    {
+      "id": 1,
+      "usuarioId": 1,
+      "itens": [
+        {
+          "produtoId": 5,
+          "quantidade": 1,
+          "preco": 11.99
+        }
+      ],
+      "total": 16.990000000000002,
+      "status": "pendente",
+      "dataPedido": "2025-11-18T00:28:45.617Z"
+    }
+  ]
+}

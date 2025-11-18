@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Pedidos - Berserk Armor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <span class="logo-icon">⚔️</span>
+        <div>
+          <h1><a href="index.html">Berserk Armor</a></h1>
+          <p class="tagline">Cupcakes Artesanais</p>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="produtos.html">Produtos</a>
+        <a href="carrinho.html">Carrinho</a>
+        <span id="userMenu"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 40px 24px; min-height: calc(100vh - 200px);">
+    <h2 class="section-title">Meus Pedidos</h2>
+    
+    <div id="pedidosContainer">
+      <div class="loading">Carregando pedidos...</div>
+    </div>
+    
+    <div id="pedidosVazio" style="display: none; text-align: center; padding: 80px 24px;">
+      <p style="font-size: 1.5rem; color: var(--texto-cinza); margin-bottom: 24px;">Você ainda não fez nenhum pedido</p>
+      <a href="produtos.html" class="btn-cta">Fazer Primeiro Pedido</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 Berserk Armor - Desenvolvido por Sivaldo Silva</p>
+    </div>
+  </footer>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    
+    if (!usuario) {
+      alert('Você precisa estar logado para ver seus pedidos!');
+      window.location.href = 'login.html';
+    }
+    
+    function verificarUsuario() {
+      const userMenu = document.getElementById('userMenu');
+      
+      if (usuario) {
+        userMenu.innerHTML = `
+          <span class="user-info">Olá, ${usuario.nome.split(' ')[0]}!</span>
+          <a href="pedidos.html" class="active">Pedidos</a>
+          <a href="#" onclick="logout()">Sair</a>
+        `;
+      }
+    }
+    
+    function logout() {
+      localStorage.removeItem('usuario');
+      window.location.href = 'index.html';
+    }
+    
+    async function carregarPedidos() {
+      try {
+        const response = await fetch(`http://localhost:3000/api/pedidos/${usuario.id}`);
+        const pedidos = await response.json();
+        
+        exibirPedidos(pedidos);
+        
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+        document.getElementById('pedidosContainer').innerHTML = 
+          '<p class="error-message">Erro ao carregar pedidos. Verifique se o backend está rodando.</p>';
+      }
+    }
+    
+    function exibirPedidos(pedidos) {
+      const container = document.getElementById('pedidosContainer');
+      const vazio = document.getElementById('pedidosVazio');
+      
+      if (pedidos.length === 0) {
+        container.style.display = 'none';
+        vazio.style.display = 'block';
+        return;
+      }
+      
+      vazio.style.display = 'none';
+      container.style.display = 'block';
+      
+      pedidos.sort((a, b) => new Date(b.dataPedido) - new Date(a.dataPedido));
+      
+      container.innerHTML = pedidos.map(pedido => `
+        <div style="background: var(--preto-card); border-radius: 16px; border: 2px solid var(--azul-primario); overflow: hidden; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px; background: linear-gradient(135deg, rgba(0,102,255,0.1), rgba(0,204,255,0.05)); border-bottom: 1px solid rgba(0,102,255,0.2);">
+            <div>
+              <h3 style="color: var(--azul-neon); margin-bottom: 4px;">Pedido #${pedido.id}</h3>
+              <p style="color: var(--texto-cinza); font-size: 0.95rem;">${formatarData(pedido.dataPedido)}</p>
+            </div>
+            <span style="padding: 8px 16px; border-radius: 20px; font-weight: 700; background: rgba(0,204,255,0.2); color: var(--azul-neon);">
+              ${getStatusLabel(pedido.status)}
+            </span>
+          </div>
+          
+          <div style="padding: 24px;">
+            ${pedido.itens.map(item => `
+              <div style="display: flex; gap: 16px; align-items: center; padding: 16px; background: rgba(0,102,255,0.05); border-radius: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+                <img src="${item.imagem}" alt="${item.nome}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                
+                <div style="flex: 1; min-width: 150px;">
+                  <p style="font-weight: 600; color: var(--azul-neon); margin-bottom: 4px;">${item.nome}</p>
+                  <p style="color: var(--texto-cinza); font-size: 0.95rem;">${item.quantidade}x R$ ${item.preco.toFixed(2)}</p>
+                </div>
+                
+                <div style="text-align: right;">
+                  <p style="font-size: 1.3rem; font-weight: 800; color: var(--azul-neon);">R$ ${(item.quantidade * item.preco).toFixed(2)}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px; background: rgba(0,102,255,0.05); border-top: 1px solid rgba(0,102,255,0.2);">
+            <span style="font-size: 1.2rem; font-weight: 600; color: var(--texto-cinza);">Total:</span>
+            <span style="font-size: 2rem; font-weight: 800; color: var(--azul-neon);">R$ ${pedido.total.toFixed(2)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function formatarData(dataISO) {
+      const data = new Date(dataISO);
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      const hora = String(data.getHours()).padStart(2, '0');
+      const minuto = String(data.getMinutes()).padStart(2, '0');
+      
+      return `${dia}/${mes}/${ano} às ${hora}:${minuto}`;
+    }
+    
+    function getStatusLabel(status) {
+      const labels = {
+        pendente: 'Pendente',
+        processando: 'Em Preparo',
+        enviado: 'Enviado',
+        entregue: 'Entregue',
+        cancelado: 'Cancelado'
+      };
+      return labels[status] || status;
+    }
+    
+    verificarUsuario();
+    carregarPedidos();
+  </script>
+</body>
+</html>
